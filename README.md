@@ -19,6 +19,9 @@ This was an idea that I had ever since my first semsester at Purdue and felt tha
 # Options
 
 -h: help
+
 -t: format of argument. if none are specified, it will check the file ending
+
 -s: be silent
+
 -f: replace even if there are compile errors after hecking up
