@@ -1,12 +1,14 @@
 # Intro
 
-The CodeHecker is a project that I want to make my code, unsable but only barely cypherable.
-This was an idea that I had ever since my first semsester at Purdue and felt that its high time I pursue my dream of somehow making my code even less readable.
+The CodeHecker is a project that I want to make my code, usable but only barely understandable.
+This was an idea that I had ever since my first semester at Purdue and felt that its high time I pursue my dream of somehow making my code even less readable.
+
+This project, at least in its early stages will focus only on C++ code. Once they types of C++ and object hecking has been added, I will expand to other file types.
 
 # Current proposed workflow:
 
 - take in code file
-- Get file type to specify lanague-specific tokens
+- Get file type to specify language-specific tokens
 - traverse line by line and do the following:
 	- remove lines with comments
 	- add declared variables to variable list
