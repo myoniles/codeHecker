@@ -21,6 +21,9 @@ This project, at least in its early stages will focus only on C++ code. Once the
 # Options
 
 -h: help
+
 -t: format of argument. if none are specified, it will check the file ending
+
 -s: be silent
+
 -f: replace even if there are compile errors after hecking up
