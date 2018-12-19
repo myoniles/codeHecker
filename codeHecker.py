@@ -3,7 +3,6 @@ import sys
 import re
 import hashlib
 import getopt
-import json
 
 TYPE = ""
 VARIABLE = {}
@@ -16,22 +15,29 @@ def detect_code_type(file_name):
 		TYPE = file_name[-1]
 	return
 
-def heck_split(line):
-	delims = " ", "(", ")", ",", "+", "-", "/","*", "%", "\n", "="
-	delims = '|'.join(map(re.escape, delims))
-	line = re.split(str(delims) ,line)
-	return line
-
-def replace_variable(var_name):
+def hash_variable(var_name):
 	global VARIABLE
-	VARIABLE.update({var_name:hashlib.sha1(var_name).hexdigest()})
+	if var_name not in VARIABLE:
+		VARIABLE[varname] = var_name:hashlib.sha1(var_name).hexdigest()
 	return
 
-def check_for_dec(unded_str):
-	unded_str.split("=")
-	with open("types.json", "r") as fille:
-		data = json.load(fille)
-		print(data[TYPE])
+# magic for finding variable name: (\w+)(\[.*\])*\ *=
+# however this doesn't find declarations like:
+# 		int foo;
+# that is matched by: (?:\w+\s+)([a-zA-Z_]\w*)
+# the regex that does mathc to that doesn't handle python declarations,
+# it is too limited in that it requires a word in front of it to be a variable
+
+def check_for_var(unded_str):
+	# values that have been declared equal to a value:
+	#		darn = 1
+	matches = re.findall(r'(\w+)(\[.*\])*\ *=', unded_str)
+	# values that have simply been declared with a type
+	# 	int heck = 1
+	matches = matches +  re.findall(r'(?:\w+\s+)([a-cA-Z_]\w*)', unded_str)
+	for var_name in matches:
+		hash_variable(var_name)
+	return
 
 def compile():
 	return
@@ -41,11 +47,11 @@ def abort():
 
 def __main__():
 	detect_code_type(sys.argv[1])
-	fille = open(sys.argv[1], "r", encoding="utf-8")
-	for l in fille:
-		check_for_dec(l)
-		l = heck_split(l)
-	return
+	with open(sys.argc[1], "r") as unAlteredFile:
+		inBlock = False
+		for line in unAlteredFile:
+			inBlock = remove_comments(line)
+			check_for_var(line)
 
 if __name__ == "__main__":
 	__main__()

@@ -1,4 +1,0 @@
-{
-	"cpp": ["int", "double", "float", "char", "wchar_t"],
-	"c": ["int", "double", "float", "char"]
-}
