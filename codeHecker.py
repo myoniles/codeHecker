@@ -4,10 +4,11 @@ import re
 import hashlib
 from argparse import ArgumentParser
 
-TYPE = ""
+# as of now, this only supports two comment types, python / shell and C-style comments
+C_COMMENT = True
 VARIABLE = {}
 
-COMMENT = {"block_start":"\\*", "block_end":"*/","hash_comment":"#"}
+COMMENT = {"slashes":"//","block_start":"\\*", "block_end":"*/","hash_comment":"#"}
 
 def getArgs():
 	parser = ArgumentParser()
@@ -19,9 +20,10 @@ def getArgs():
 
 def detect_code_type(file_name):
 	global TYPE
+	uses_c = {"java":True,"c":True, "cpp":True, "sh":False, "py":False}
 	file_name = file_name.split(".")
 	if file_name[1]:
-		TYPE = file_name[-1]
+		TYPE = uses_c[file_name[-1]]
 	return
 
 def hash_variable(var_name):
@@ -30,18 +32,43 @@ def hash_variable(var_name):
 		VARIABLE[var_name] = hashlib.sha1(var_name.encode('utf-8')).hexdigest()
 	return
 
-def remove_comments(uned_str, in_block):
+def remove_comments(line, in_block):
 	global COMMENT
-	global TYPE
-	# ignore comments inside of strings
-	# yes I know its unlikely but still
-	if COMMENT["block_end"] in uned_str:
-		uned_str.split(COMMENT["block_end"])
-		# if there is code written after the block, include that
-		if unedstr[1]:
-			uned_str = unedstr[1]
-		in_block = False
-	return (uned_str, in_block)
+	global C_COMMENT
+
+	# is the comment format python?
+	if not C_COMMENT:
+		line = line.split("#")[0]
+		return line, False
+	else:
+		# I do a lot of checking here just make sure that a single
+		# string is passed rather than a tuple
+		if "//" in line:
+			# we need to know if this is a whole line comment or a comment at the end
+			line = line.split("//")
+			if line[0].isspace() or line == "":
+				return "", in_block
+			else:
+				line = line[0]
+		# This one line on regex will deal with block comments in the middle of lines
+		line = re.sub(r'/\*.*\*/', "", line)
+
+		# I could do all blocks with multiline regex but I am afraid of unforseen consequences
+		# such as not being able to see the whole document
+		# re.sub(r'/\*.*?\*/', '', whole_gosh_darn_file, re.DOTALL)
+
+		# is this the start of the block?
+		if "/*" in line:
+			line = line.split("/*")
+			line = "".join(line[:-1])
+		# is this the end of the block?
+		if "*/" in line:
+			line = line.split("*/")
+			# if there is code written after the block, include that
+			if line[1]:
+				line = "".join(line[1:])
+			in_block = False
+		return (line, in_block)
 
 # magic for finding variable name: (\w+)(\[.*\])*\ *=
 # however this doesn't find declarations like:
@@ -54,11 +81,14 @@ def check_for_var(unded_str):
 	unded_str = re.sub(r'\".*?\"', '', unded_str)
 	# values that have been declared equal to a value:
 	#		darn = 1
-	matches = re.findall(r'(\w+)(\[.*\])*\ *=', unded_str)
+	regexIsFun = re.findall(r'(\w+)(\[.*\])*\ *=', unded_str)
+	# the above regex actually matches on two different components of the string
+	# we only want the first
+	regexIsFun = [entry[0] for entry in regexIsFun]
 	# values that have simply been declared with a type
 	# 	int heck = 1
-	matches = matches +  re.findall(r'(?:\w+\s+)([a-cA-Z_]\w*)', unded_str)
-	for var_name in matches:
+	regexIsFun = regexIsFun + re.findall(r'(?:\w+\s+)([a-cA-Z_]\w*)', unded_str)
+	for var_name in regexIsFun:
 		hash_variable(var_name)
 	return
 
@@ -77,6 +107,8 @@ def __main__():
 		for line in unAlteredFile:
 			line, inBlock = remove_comments(line, inBlock)
 			check_for_var(line)
+			print(line)
+	print(VARIABLE)
 
 if __name__ == "__main__":
 	__main__()
