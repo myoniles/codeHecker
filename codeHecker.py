@@ -29,7 +29,12 @@ def detect_code_type(file_name):
 def hash_variable(var_name):
 	global VARIABLE
 	if var_name not in VARIABLE:
-		VARIABLE[var_name] = hashlib.sha1(var_name.encode('utf-8')).hexdigest()
+		hashStr = hashlib.sha1(var_name.encode('utf-8')).hexdigest()
+		# most langauges dont allow for variables to begin with a number
+		newFirst = hashStr[0]
+		if not hashStr[0].isalpha():
+			newFirst = chr(int(hashStr[0]) + 97)
+		VARIABLE[var_name] = newFirst + hashStr[1:]
 	return
 
 def remove_comments(line, in_block):
