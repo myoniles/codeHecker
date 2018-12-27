@@ -112,8 +112,8 @@ def __main__():
 		for line in unAlteredFile:
 			line, inBlock = remove_comments(line, inBlock)
 			check_for_var(line)
-			print(line)
-	print(VARIABLE)
+			if(args.verbose):
+				print(line)
 
 if __name__ == "__main__":
 	__main__()
