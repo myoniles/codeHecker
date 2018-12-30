@@ -14,8 +14,8 @@ def getArgs():
 	parser = ArgumentParser()
 	parser.add_argument("file", help="The code file being hecked")
 	parser.add_argument("-t","--type", help="specfiy the type of the file being hecked")
-	parser.add_argument("-f","--force", help="replace the file even if there were problems in compilation")
-	parser.add_argument("-v","--verbose", help="print to stdout")
+	parser.add_argument("-f","--force", action="store_true", help="replace the file even if there were problems in compilation")
+	parser.add_argument("-v","--verbose", action="store_true", help="print to stdout")
 	return parser.parse_args()
 
 def detect_code_type(file_name):
@@ -97,6 +97,22 @@ def check_for_var(unded_str):
 		hash_variable(var_name)
 	return
 
+def remove_var(line):
+	global VARIABLE
+	# we will hold on to the first char, this will help maintain space / tab indentation
+	first_char = ''
+	if line:
+		first_char = line[0]
+	pattern = re.compile(r"\s") # OwO a new method for regex
+	line = pattern.split(line)
+	for word in range(len(line)):
+		if line[word] == '':
+			line[word] = first_char
+		elif line[word] in VARIABLE:
+			line[word] = VARIABLE[line[word]]
+	line = " ".join(line)
+	return line
+
 def compile():
 	return
 
@@ -112,6 +128,7 @@ def __main__():
 		for line in unAlteredFile:
 			line, inBlock = remove_comments(line, inBlock)
 			check_for_var(line)
+			line = remove_var(line)
 			if(args.verbose):
 				print(line)
 
