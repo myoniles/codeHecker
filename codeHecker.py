@@ -100,17 +100,9 @@ def check_for_var(unded_str):
 def remove_var(line):
 	global VARIABLE
 	# we will hold on to the first char, this will help maintain space / tab indentation
-	first_char = ''
-	if line:
-		first_char = line[0]
-	pattern = re.compile(r"\s") # OwO a new method for regex
-	line = pattern.split(line)
-	for word in range(len(line)):
-		if line[word] == '':
-			line[word] = first_char
-		elif line[word] in VARIABLE:
-			line[word] = VARIABLE[line[word]]
-	line = " ".join(line)
+	for hashed_var in VARIABLE.keys():
+		debug = r"({})(\b)".format(hashed_var)
+		line = re.sub(debug, VARIABLE[hashed_var], line)
 	return line
 
 def compile():
