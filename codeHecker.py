@@ -103,7 +103,7 @@ def remove_var(line):
 	global VARIABLE
 	# we will hold on to the first char, this will help maintain space / tab indentation
 	for hashed_var in VARIABLE.keys():
-		debug = r"({})(\b)".format(hashed_var)
+		debug = r"(?<!\\)(\b)({}\b)".format(hashed_var)
 		line = re.sub(debug, VARIABLE[hashed_var], line)
 	return line
 
