@@ -3,10 +3,14 @@ import sys
 import re
 import hashlib
 from argparse import ArgumentParser
+# we are using subprocess for better stderr checking
+# This makes the program *very* dangerous
+import subprocess
 
 # as of now, this only supports two comment types, python / shell and C-style comments
 C_COMMENT = True
 VARIABLE = {}
+COMP = ""
 
 COMMENT = {"slashes":"//","block_start":"\\*", "block_end":"*/","hash_comment":"#"}
 
@@ -20,10 +24,15 @@ def getArgs():
 
 def detect_code_type(file_name):
 	global TYPE
+	global COMP
 	uses_c = {"java":True,"c":True, "cpp":True, "sh":False, "py":False}
+	# We use source for shell here to have an easier implementation
+	# Also I am taking a guess on python3 RIP
+	comp = {"java":"javac","c":"gcc", "cpp":"g++", "sh":"source", "py":"python3"}
 	file_name = file_name.split(".")
 	if file_name[1]:
 		TYPE = uses_c[file_name[-1]]
+		COMP = comp[file_name[-1]]
 	return
 
 def hash_variable(var_name):
@@ -107,24 +116,49 @@ def remove_var(line):
 		line = re.sub(debug, VARIABLE[hashed_var], line)
 	return line
 
-def compile():
-	return
-
-def abort():
-	return
+def abort(filename):
+	try:
+		# print("Problem encountered, preparing to abort")
+		# this is the scariest line in my code
+		subprocess.call(["rm", filename])
+	except:
+		#print("unable to remove files created, please do so manually")
+		print("")
+	quit()
 
 def __main__():
+	global COMP
 	args = getArgs()
 	filename = args.file
+	file_desc = filename.split(".")
 	detect_code_type(filename)
-	with open(filename, "r") as unAlteredFile:
-		inBlock = False
-		for line in unAlteredFile:
-			line, inBlock = remove_comments(line, inBlock)
-			check_for_var(line)
-			line = remove_var(line)
-			if(args.verbose):
-				print(line)
+	hecked_name = file_desc[0] + "_hecked" + "."+ file_desc[1]
+	with open(hecked_name, "w") as alteredFile:
+		with open(filename, "r") as unAlteredFile:
+			inBlock = False
+			for line in unAlteredFile:
+				line, inBlock = remove_comments(line, inBlock)
+				check_for_var(line)
+				line = remove_var(line)
+				if(args.verbose):
+					print(line)
+				else:
+					alteredFile.write(line)
+
+		# At this point in the code, file_hecked.type has been written
+		# Lets pass it to out compiler / interpreter
+	try:
+		return_code = subprocess.call([COMP, hecked_name])
+		if return_code and not args.force:
+			abort(hecked_name)
+
+		# just rename the file, recompilation is not necessary
+		subprocess.call(["mv",hecked_name, filename])
+		return
+	except:
+		if not args.force:
+			abort(hecked_name)
+		return
 
 if __name__ == "__main__":
 	__main__()

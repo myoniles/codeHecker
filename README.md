@@ -27,3 +27,13 @@ This project, at least in its early stages will focus only on C++ code. Once the
 -s: be silent
 
 -f: replace even if there are compile errors after hecking up
+
+# Dev Notes:
+
+> Some people, when confronted with a problem, think "I know, I'll use regular expressions." Now they have two problems.
+
+Jamie Zawinski
+
+> Let's write it in python, because python can do anything... just badly.
+
+Michael Reeves
