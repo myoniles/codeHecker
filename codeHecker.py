@@ -91,8 +91,10 @@ def check_for_var(unded_str):
 	# we only want the first
 	regexIsFun = [entry[0] for entry in regexIsFun]
 	# values that have simply been declared with a type
-	# 	int heck = 1
-	regexIsFun = regexIsFun + re.findall(r'(?:\w+\s+)([a-cA-Z_]\w*)', unded_str)
+	# 	int heck
+	regexIsFun = regexIsFun + re.findall(r'(?:\w+\**\s+)([A-Za-z_]\w*)', unded_str)
+	if 'main' in regexIsFun:
+		regexIsFun.remove('main') # this is important
 	for var_name in regexIsFun:
 		hash_variable(var_name)
 	return
