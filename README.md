@@ -3,17 +3,17 @@
 The CodeHecker is a project that I want to make my code, usable but only barely understandable.
 This was an idea that I had ever since my first semester at Purdue and felt that its high time I pursue my dream of somehow making my code even less readable.
 
-This project, at least in its early stages will focus only on C++ code. Once they types of C++ and object hecking has been added, I will expand to other file types.
+This project as of now has only been tested on a limited number of C programs.
 
-# Current proposed workflow:
+# How it works:
 
 - take in code file
-- Get file type to specify language-specific tokens
+- Get file type to specify language-specific comment syntax
 - traverse line by line and do the following:
 	- remove lines with comments
 	- add declared variables to variable list
 	- replace variables names with their hashes
-- write to new file: "{filename}_new.{type}"
+- write to new file: "{filename}_hecked.{type}"
 - recompile
 - if stderr is written to, abort
 - else replace old file with new file
